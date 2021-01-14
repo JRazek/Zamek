@@ -3,7 +3,7 @@
 using namespace std;
 struct Node{
     const int id;
-    vector<Node *> connections;
+    unordered_set <Node *> connections;
     Node(int id):id(id){}
 };
 
@@ -19,19 +19,44 @@ int main(){
     unordered_map < int, map <int, Node *> > pointsX; //stands for horizontal placement of points
     unordered_map < int, map <int, Node *> > pointsY;
 
+    vector<Node *> nodes;
     for(int i = 0 ; i < nodesCount; i ++){
         int lowX, lowY, highX, highY;
         cin >> lowX >> lowY >> highX >> highY;
-        Node * n = new Node(i);
+        Node * createdNode = new Node(i);
+
+
+
+//lowX stuff
 
         if(pointsX.find(lowX) == pointsX.end()){
             pointsX[lowX] = map < int, Node * >();
         }
-
-        if(pointsX[lowX].lower_bound(lowX) != pointsX[lowX].end()){
-            Node * lowerNode = (*pointsX[lowX].lower_bound(lowX)).second;
-            
+        if(pointsX.find(highX) == pointsX.end()){
+            pointsX[highX] = map < int, Node * >();
         }
-    }
 
+        pointsX[lowX][lowY] = createdNode;
+        pointsX[lowX][highY] = createdNode;
+
+//highX stuff
+
+
+
+        pointsX[highX][lowY] = createdNode;
+        pointsX[highX][highY] = createdNode;
+
+        nodes.push_back(createdNode);
+
+        cout<<"";
+        
+    }
+    /*
+        if(pointsY.find(lowY) == pointsY.end()){
+            pointsY[lowY] = map < int, Node * >();
+        }
+        if(pointsY.find(highY) == pointsY.end()){
+            pointsY[highY] = map < int, Node * >();
+        }
+    */
 }
