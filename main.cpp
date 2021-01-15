@@ -160,8 +160,8 @@ int main(){
     Node * startingNode = nullptr;
     Node * endingNode = nullptr;
 
-    O(n)
-    //assigning startingPoint and endPoint to rectangles
+    
+    //O(n) cassigning startingPoint and endPoint to rectangles
     for(auto n : nodes){
         if(startPointX >= n->lowX && startPointX <= n->highX &&
          startPointY >= n->lowY && startPointY <= n->highY){
@@ -195,6 +195,6 @@ int main(){
         }
     }
 
-    bfs(startingNode, endingNode, nodesCount);
+    //bfs(startingNode, endingNode, nodesCount);
     cout<<endingNode->pathFromSource + 1;
 }
