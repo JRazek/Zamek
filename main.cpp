@@ -4,9 +4,36 @@ using namespace std;
 struct Node{
     const int id;
     unordered_set <Node *> connections;
+    int pathFromSource;
     Node(int id):id(id){}
 };
 
+//each nodes id corresponds to visited arr index
+void bfs(Node * start, Node * destination, int nodesCount){
+    queue< pair<Node *, Node *> > pq;//node, source
+
+    vector<bool> visited(nodesCount, false);
+    pq.push(pair<Node *, Node * > (start, start));
+
+    start->pathFromSource = 0;
+    visited[start->id] = true;
+
+    while(!pq.empty()){
+        Node * n = pq.front().first;
+        Node * comingFrom = pq.front().second;
+        for(auto another : n->connections){
+            if(another != comingFrom && !visited[another->id]){
+                pq.push(pair<Node *, Node *>(another, n));
+                another->pathFromSource = n->pathFromSource + 1;
+                visited[another->id] = true;
+                if(another == destination){
+                    return;
+                }
+            }
+        }
+        pq.pop();
+    }
+}
 int main(){
     int sizeX, sizeY, nodesCount, pointsCount;
     int startPointX, startPointY, endPointX, endPointY;
@@ -24,8 +51,6 @@ int main(){
         int lowX, lowY, highX, highY;
         cin >> lowX >> lowY >> highX >> highY;
         Node * createdNode = new Node(i);
-
-
 
 //lowX stuff
         if(pointsX.find(lowX) == pointsX.end()){
@@ -119,13 +144,7 @@ int main(){
             }
         }
     }
-    /*
-        if(pointsY.find(lowY) == pointsY.end()){
-            pointsY[lowY] = map < int, Node * >();
-        }
-        if(pointsY.find(highY) == pointsY.end()){
-            pointsY[highY] = map < int, Node * >();
-        }
-    */
-        cout<<"";
+    
+    bfs(nodes[0], nodes[4], nodesCount);
+    cout<<nodes[4]->pathFromSource;
 }
