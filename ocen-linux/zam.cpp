@@ -2,32 +2,32 @@
 
 using namespace std;
 struct Node{
-    const int id;
-    unordered_set <Node *> connections;
+    int id;
+    unordered_set <int> connections;
     int pathFromSource;
     int lowX, lowY, highX, highY;
-    Node(int id):id(id){}
+    Node(const int id):id(id){}
 };
 
 //each nodes id corresponds to visited arr index
-void bfs(Node * start, Node * destination, int nodesCount){
-    queue< pair<Node *, Node *> > pq;//node, source
+void bfs(Node start, Node destination, vector<Node> &nodes, int nodesCount){
+    queue< pair<int, int> > pq;//node, source
 
     vector<bool> visited(nodesCount, false);
-    pq.push(pair<Node *, Node * > (start, start));
+    pq.push(pair<int, int> (start.id, start.id));
 
-    start->pathFromSource = 0;
-    visited[start->id] = true;
+    start.pathFromSource = 0;
+    visited[start.id] = true;
 
     while(!pq.empty()){
-        Node * n = pq.front().first;
-        Node * comingFrom = pq.front().second;
-        for(auto another : n->connections){
-            if(another != comingFrom && !visited[another->id]){
-                pq.push(pair<Node *, Node *>(another, n));
-                another->pathFromSource = n->pathFromSource + 1;
-                visited[another->id] = true;
-                if(another == destination){
+        Node n = nodes[pq.front().first];
+        Node comingFrom = nodes[pq.front().second];
+        for(auto another : n.connections){
+            if(another != comingFrom.id && !visited[nodes[another].id]){
+                pq.push(pair<int, int>(another, n.id));
+                nodes[another].pathFromSource = n.pathFromSource + 1;
+                visited[another] = true;
+                if(another == destination.id){
                     return;
                 }
             }
@@ -35,6 +35,11 @@ void bfs(Node * start, Node * destination, int nodesCount){
         pq.pop();
     }
 }
+struct Point{
+    int x, y;
+    Node n;
+    Point(int x, int y, Node n):x(x), y(y), n(n){}
+};
 int main(){
     int sizeX, sizeY, nodesCount, pointsCount;
     int startPointX, startPointY, endPointX, endPointY;
@@ -44,125 +49,87 @@ int main(){
     cin >> startPointX >> startPointY;
     cin >> endPointX >> endPointY;
 
-    unordered_map < int, map <int, vector<Node *> > > pointsX; //stands for horizontal placement of points
-    unordered_map < int, map <int, vector<Node *>> > pointsY;
+   // unordered_map < int, map <int, vector<Node *> > > pointsX; //stands for horizontal placement of points
+    //unordered_map < int, map <int, vector<Node *>> > pointsY;
 
-    vector<Node *> nodes;
+    vector<Node> nodes;
+    vector<Point> points;
     for(int i = 0 ; i < nodesCount; i ++){
         int lowX, lowY, highX, highY;
         cin >> lowX >> lowY >> highX >> highY;
-        Node * createdNode = new Node(i);
-        createdNode->lowX = lowX; 
-        createdNode->lowY = lowY; 
-        createdNode->highX = highX; 
-        createdNode->highY = highY; 
-
-//lowX stuff
-        if(pointsX.find(lowX) == pointsX.end()){
-            pointsX[lowX] = map < int, vector<Node *> >();
-        }
-        if(pointsX[lowX].find(lowY) == pointsX[lowX].end()){
-            pointsX[lowX][lowY] = vector<Node *> ();
-        }
-        if(pointsX[lowX].find(highY) == pointsX[lowX].end()){
-            pointsX[lowX][highY] = vector<Node *> ();
-        }
-        pointsX[lowX][lowY].push_back(createdNode);
-        pointsX[lowX][highY].push_back(createdNode);
-
-//highX stuff
-        if(pointsX.find(highX) == pointsX.end()){
-            pointsX[highX] = map < int, vector<Node *> >();
-        }
-        if(pointsX[highX].find(lowY) == pointsX[lowX].end()){
-            pointsX[highX][lowY] = vector<Node *> ();
-        }
-        if(pointsX[highX].find(highY) == pointsX[lowX].end()){
-            pointsX[highX][highY] = vector<Node *> ();
-        }
-        pointsX[highX][lowY].push_back(createdNode);
-        pointsX[highX][highY].push_back(createdNode);
-        
-//lowY stuff
-        if(pointsY.find(lowY) == pointsY.end()){
-            pointsY[lowY] = map < int, vector<Node *> >();
-        }
-        if(pointsY[lowY].find(lowX) == pointsY[lowY].end()){
-            pointsY[lowY][lowX] = vector<Node *> ();
-        }
-        if(pointsY[lowY].find(highX) == pointsY[lowY].end()){
-            pointsY[lowY][highX] = vector<Node *> ();
-        }
-        pointsY[lowY][lowX].push_back(createdNode);
-        pointsY[lowY][highX].push_back(createdNode);
-
-//highY stuff
-        if(pointsY.find(highY) == pointsY.end()){
-            pointsY[highY] = map < int, vector<Node *> >();
-        }
-        if(pointsY[highY].find(lowX) == pointsY[highY].end()){
-            pointsY[highY][lowX] = vector<Node *> ();
-        }
-        if(pointsY[highY].find(highX) == pointsY[highY].end()){
-            pointsY[highY][highX] = vector<Node *> ();
-        }
-        pointsY[highY][lowX].push_back(createdNode);
-        pointsY[highY][highX].push_back(createdNode);
-
+        Node createdNode = Node(i);
+        createdNode.lowX = lowX; 
+        createdNode.lowY = lowY; 
+        createdNode.highX = highX; 
+        createdNode.highY = highY; 
+        points.push_back(Point(lowX, lowY, createdNode));
+        points.push_back(Point(lowX, highY, createdNode));
+        points.push_back(Point(highX, lowY, createdNode));
+        points.push_back(Point(highX, highY, createdNode));
 
         nodes.push_back(createdNode);
-
-        cout<<"";
-        
+        //cout<<sizeof(points.back());
     }
-    for(auto it = pointsX.begin(); it != pointsX.end(); ++it){
-        unordered_set <Node *> nodesOnStack;
-        for(auto it2 = (*it).second.begin(); it2 != (*it).second.end(); ++it2){
-            vector<Node *> * nodesVector = &(*it2).second;//up to 4 nodes per point
-            for(auto it3 = nodesVector->begin(); it3 != nodesVector->end(); ++it3){
-                Node * n = (*it3);
-                if(!nodesOnStack.erase(n)){
-                    for(auto it4 = nodesOnStack.begin(); it4 != nodesOnStack.end(); ++it4){
-                        Node * ns = *it4;
-                        n->connections.insert(ns);
-                        ns->connections.insert(n);
-                    }
-                    nodesOnStack.insert(n);
-                }
-            }
+    
+    sort(points.begin(), points.end(), [](const Point p1, const Point p2){
+        if(p1.x != p2.x)
+            return p1.x < p2.x;
+        return p1.y < p2.y;
+    });
+    int currentX = 0;
+    unordered_set<int> stack1;//Node id
+    for(auto p : points){
+        if(p.x > currentX){
+            stack1.clear();
+            currentX = p.x;
         }
-    }
-    for(auto it = pointsY.begin(); it != pointsY.end(); ++it){
-        unordered_set <Node *> nodesOnStack;
-        for(auto it2 = (*it).second.begin(); it2 != (*it).second.end(); ++it2){
-            vector<Node *> * nodesVector = &(*it2).second;//up to 4 nodes per point
-            for(auto it3 = nodesVector->begin(); it3 != nodesVector->end(); ++it3){
-                Node * n = (*it3);
-                if(!nodesOnStack.erase(n)){
-                    for(auto it4 = nodesOnStack.begin(); it4 != nodesOnStack.end(); ++it4){
-                        Node * ns = *it4;
-                        n->connections.insert(ns);
-                        ns->connections.insert(n);
-                    }
-                    nodesOnStack.insert(n);
-                }
+        if(!stack1.erase(p.n.id)){
+            //stack[p->y]
+            for(auto stackNode : stack1){
+                nodes[stackNode].connections.insert(p.n.id);
+                p.n.connections.insert(nodes[stackNode].id);
             }
+            stack1.insert(p.n.id);
         }
     }
     
-    Node * startingNode = nullptr;
-    Node * endingNode = nullptr;
+    sort(points.begin(), points.end(), [](const Point p1, const Point p2){
+        if(p1.y != p2.y)
+            return p1.y < p2.y;
+        return p1.x < p2.x;
+    });
+    int currentY = 0;
+    unordered_set<int> stack2;//Node id
+    for(auto p : points){
+        if(p.y > currentX){
+            stack2.clear();
+            currentY = p.y;
+        }
+        if(!stack2.erase(p.n.id)){
+            //stack[p->y]
+            for(auto stackNode : stack2){
+                nodes[stackNode].connections.insert(p.n.id);
+                p.n.connections.insert(nodes[stackNode].id);
+            }
+            stack2.insert(p.n.id);
+        }
+    }
+
+    points.clear();
+
+    int startingNode;
+    int endingNode;
 
     for(auto n : nodes){
-        if(startPointX >= n->lowX && startPointX <= n->highX &&
-         startPointY >= n->lowY && startPointY <= n->highY){
+        if(startPointX >= n.lowX && startPointX <= n.highX &&
+         startPointY >= n.lowY && startPointY <= n.highY){
              //match
-            startingNode = n;
+            startingNode = n.id;
          }
-        if(endPointX >= n->lowX && endPointX <= n->highX &&
-         endPointY >= n->lowY && endPointY <= n->highY){
+        if(endPointX >= n.lowX && endPointX <= n.highX &&
+         endPointY >= n.lowY && endPointY <= n.highY){
              //match
-            endingNode = n;
+            endingNode = n.id;
          }
     }
 
@@ -172,20 +139,20 @@ int main(){
         cin >> pointX >> pointY;
         for(auto it = nodes.begin(); it != nodes.end();++it){
             auto n = *it;
-            if(pointX >= n->lowX && pointX <= n->highX 
-                && pointY >= n->lowY && pointY <= n->highY){
+            if(pointX >= n.lowX && pointX <= n.highX 
+                && pointY >= n.lowY && pointY <= n.highY){
                 //match
-                for(auto it = n->connections.begin(); it != n->connections.end();){
-                    Node * connected = *it;
+                for(auto it = n.connections.begin(); it != n.connections.end();){
+                    Node connected = nodes[*it];
                     ++it;
-                    connected->connections.erase(n);
-                    n->connections.erase(connected);
+                    connected.connections.erase(n.id);
+                    n.connections.erase(connected.id);
                 }
                 break;
             }
         }
     }
 
-    bfs(startingNode, endingNode, nodesCount);
-    cout<<endingNode->pathFromSource + 1;
+   // bfs(&startingNode, endingNode, nodes, nodesCount);
+    cout<<nodes[endingNode].pathFromSource + 1;
 }
