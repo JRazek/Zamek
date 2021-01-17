@@ -11,7 +11,8 @@
             "program": "${fileDirname}/${fileBasenameNoExtension}",
             "args": [
                 "<",
-                "ocen-linux/in/zam0.in"
+                "ocen-linux/in/zam1.in"
+               // "test"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

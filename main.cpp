@@ -4,7 +4,7 @@ using namespace std;
 struct Node{
     const int id;
     unordered_set <Node *> connections;
-    int pathFromSource;
+    int pathFromSource = -1;
     int lowX, lowY, highX, highY;
     Node(int id):id(id){}
 };
@@ -76,43 +76,13 @@ int main(){
             return p1.x < p2.x;
         return p1.y < p2.y;
     });
-    int currentX = 0;
+
     unordered_set<int> stack1;//Node id
-    for(auto p : points){
-        if(p.x > currentX){
-            stack1.clear();
-            currentX = p.x;
-        }
-        if(!stack1.erase(p.n->id)){
-            //stack[p->y]
-            for(auto stackNode : stack1){
-                nodes[stackNode]->connections.insert(p.n);
-                p.n->connections.insert(nodes[stackNode]);
-            }
-            stack1.insert(p.n->id);
-        }
-    }
-    
-    sort(points.begin(), points.end(), [](const Point p1, const Point p2){
-        if(p1.y != p2.y)
-            return p1.y < p2.y;
-        return p1.x < p2.x;
-    });
-    int currentY = 0;
-    unordered_set<int> stack2;//Node id
-    for(auto p : points){
-        if(p.y > currentX){
-            stack2.clear();
-            currentY = p.y;
-        }
-        if(!stack2.erase(p.n->id)){
-            //stack[p->y]
-            for(auto stackNode : stack2){
-                nodes[stackNode]->connections.insert(p.n);
-                p.n->connections.insert(nodes[stackNode]);
-            }
-            stack2.insert(p.n->id);
-        }
+    list<int> batch1;//Node id
+    for(int i = 0; i < points.size(); i ++){
+        Point p = points[i];
+        batch1.push_back(p.n->id);
+        
     }
 
     points.clear();
