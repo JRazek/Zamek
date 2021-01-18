@@ -105,6 +105,40 @@ int main(){
         }
     }
 
+
+    sort(points.begin(), points.end(), [](const Point p1, const Point p2){
+        if(p1.y != p2.y)
+            return p1.y < p2.y;
+        return p1.x < p2.x;
+    });
+    unordered_set<int> stack2;//Node id
+    list<pair<int, bool>> batch2;//Node id
+    for(int i = 0; i < points.size(); i ++){
+        Point p = points[i];
+        batch2.push_back(pair<int, bool>(p.n->id, false));
+        if(i == points.size() - 1 || points[i + 1].x != p.x || points[i + 1].y != p.y){
+            for(auto &key : batch2){
+                if(stack2.erase(key.first)){
+                    key.second = true;
+                }
+            }
+            for(auto &key : batch2){
+                if(!key.second){
+                    for(auto key2 : stack2){
+                        Node * n2 = nodes[key2];
+                        n2->connections.insert(nodes[key.first]);
+                        nodes[key.first]->connections.insert(n2);
+                    }
+                    stack2.insert(key.first);
+                }
+            }
+            batch2.clear();
+        }
+        if(points[i + 1].y != p.y || i == points.size() - 1){
+            stack2.clear();
+        }
+    }
+
     points.clear();
 
     Node * startingNode = nullptr;
