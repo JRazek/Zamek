@@ -78,11 +78,31 @@ int main(){
     });
 
     unordered_set<int> stack1;//Node id
-    list<int> batch1;//Node id
+    list<pair<int, bool>> batch1;//Node id
     for(int i = 0; i < points.size(); i ++){
         Point p = points[i];
-        batch1.push_back(p.n->id);
-        
+        batch1.push_back(pair<int, bool>(p.n->id, false));
+        if(i == points.size() - 1 || points[i + 1].y != p.y || points[i + 1].x != p.x){
+            for(auto &key : batch1){
+                if(stack1.erase(key.first)){
+                    key.second = true;
+                }
+            }
+            for(auto &key : batch1){
+                if(!key.second){
+                    for(auto key2 : stack1){
+                        Node * n2 = nodes[key2];
+                        n2->connections.insert(nodes[key.first]);
+                        nodes[key.first]->connections.insert(n2);
+                    }
+                    stack1.insert(key.first);
+                }
+            }
+            batch1.clear();
+        }
+        if(points[i + 1].x != p.x || i == points.size() - 1){
+            stack1.clear();
+        }
     }
 
     points.clear();
