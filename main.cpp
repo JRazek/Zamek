@@ -49,9 +49,6 @@ int main(){
     cin >> startPointX >> startPointY;
     cin >> endPointX >> endPointY;
 
-   // unordered_map < int, map <int, vector<Node *> > > pointsX; //stands for horizontal placement of points
-    //unordered_map < int, map <int, vector<Node *>> > pointsY;
-
     vector<Node *> nodes;
     vector<Point> points;
     for(int i = 0 ; i < nodesCount; i ++){
@@ -138,36 +135,22 @@ int main(){
             stack1.clear();
         }
     }
-    //sweeping line
     
+    //sweeping line
     points.clear();
 
-    unordered_map<int, map< int, vector<Node *> >> sweepPoints;
+    map<int, vector<Node *> > xNodes;//contains all nodes in this axis. No matter if ending of starting
     for(auto n : nodes){
-        if(sweepPoints.find(n->lowX) == sweepPoints.end()){
-            sweepPoints[n->lowX] = map< int, vector<Node *> >();
+        if(xNodes.find(n->lowX) != xNodes.end()){
+            xNodes[n->lowX] = vector<Node *>();
         }
-        if(sweepPoints.find(n->highX) == sweepPoints.end()){
-            sweepPoints[n->highX] = map< int, vector<Node *> >();
+        if(xNodes.find(n->highX) != xNodes.end()){
+            xNodes[n->highX] = vector<Node *>();
         }
-        if(sweepPoints[n->lowX].find(n->lowY) == sweepPoints[n->lowX].end()){
-            sweepPoints[n->lowX][n->lowY] = vector<Node *>();
-        }
-        if(sweepPoints[n->lowX].find(n->highY) == sweepPoints[n->lowX].end()){
-            sweepPoints[n->lowX][n->highY] = vector<Node *>();
-        }
-        if(sweepPoints[n->highX].find(n->lowY) == sweepPoints[n->highX].end()){
-            sweepPoints[n->highX][n->lowY] = vector<Node *>();
-        }
-        if(sweepPoints[n->highX].find(n->highY) == sweepPoints[n->highX].end()){
-            sweepPoints[n->highX][n->highY] = vector<Node *>();
-        }
-        sweepPoints[n->lowX][n->lowY].push_back(n);
-        sweepPoints[n->lowX][n->highY].push_back(n);
-        sweepPoints[n->highX][n->lowY].push_back(n);
-        sweepPoints[n->highX][n->highY].push_back(n);
+        xNodes[n->lowX].push_back(n);
+        xNodes[n->highX].push_back(n);
     }
-    unordered_map<int, vector<int> > dangers;
+    map<int, vector<int> > dangers;
     for(int i = 0; i < pointsCount; i ++){
         int pointX, pointY;
         cin >> pointX >> pointY;
@@ -178,10 +161,32 @@ int main(){
         dangers[i].push_back(pointY);
     }
 
-    map<int, vector<Node *>> currLayer;
-    
+    map<int, list<Node *>> currLayer;//up to 4 nodes in here. no problem if access is O(4)
+
+    for(auto key : xNodes){
+        int x = key.first;
+        vector<Node *> * v = &key.second;
+        for(auto it1 = v->begin(); it1 != v->end(); ++it1){
+            if(x == (*it1)->lowX){
+                if(currLayer.find(x) == currLayer.end()){
+                    currLayer[x] = list<Node *>();
+                }
+                currLayer[x].push_back((*it1));
+            }
+            else{
+                list<Node *> * layerNodes = &currLayer[(*it1)->lowY];
+                
+                for(auto it2 = layerNodes->begin(); it2 != layerNodes->end(); ++it2){
+                    if((*it2) == (*it1)){
+                        layerNodes->erase(it2);
+                        break;
+                    }
+                }
+            }
+        }
+    }    
     //bfs(startingNode, endingNode, nodesCount);
-    //cout<<endingNode->pathFromSource + 1;
+    //cout<<endingNode->pathFromSource + 1;//
 
     return 0;
 }

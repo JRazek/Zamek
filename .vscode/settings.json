@@ -9,6 +9,7 @@
         "vector": "cpp",
         "new": "cpp",
         "thread": "cpp",
-        "map": "cpp"
+        "map": "cpp",
+        "*.tcc": "cpp"
     }
 }
